@@ -1,7 +1,36 @@
 <template>
   <div class="app-container">
     <switch-roles @change="handleRolesChange" />
-    <div :key="key" style="margin-top:30px;">
+    <div class="test-wrapper">
+      <list-layout>
+        <template slot="header">
+          <div v-if="checkPermission(['admin'])" label="admin" class="search">
+            <div class="input">
+              <el-input
+                v-model="input"
+                placeholder="请输入内容"
+                clearable
+              />
+            </div>
+            <div class="button">
+              <el-button type="primary" icon="el-icon-search">搜索</el-button>
+            </div>
+          </div>
+          <al-table :column="formData.column" :data="formData.list" :pagination="true" />
+        </template>
+        <template slot="main">
+          <div class="renderless">
+            <render-less />
+          </div>
+        </template>
+        <template slot="footer">
+          <div class="tablelist">
+            <al-table :column="formData.column" :data="formData.list" :pagination="true" />
+          </div>
+        </template>
+      </list-layout>
+    </div>
+    <!-- <div :key="key" style="margin-top:30px;">
       <div>
         <span v-permission="['admin']" class="permission-alert">
           Only
@@ -62,23 +91,85 @@
           </el-tag>
         </el-tab-pane>
       </el-tabs>
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script>
+import { getTestList } from '@/api/test.js'
+import ListLayout from '@/components/ListLayout/index.vue'
+import AlTable from '@/components/AlTable/index.vue'
+import RenderLess from '@/views/renderless/index.vue'
 import permission from '@/directive/permission/index.js' // 权限判断指令
 import checkPermission from '@/utils/permission' // 权限判断函数
 import SwitchRoles from './components/SwitchRoles'
 
 export default {
   name: 'DirectivePermission',
-  components: { SwitchRoles },
+  components: {
+    ListLayout,
+    AlTable,
+    SwitchRoles,
+    RenderLess
+  },
   directives: { permission },
   data() {
     return {
-      key: 1 // 为了能每次切换权限的时候重新初始化指令
+      key: 1, // 为了能每次切换权限的时候重新初始化指令
+      input: '',
+      formData: {
+        column: [
+          {
+            prop: 'nick',
+            label: '昵称'
+          },
+          {
+            prop: 'phone',
+            label: '手机号'
+          },
+          {
+            prop: 'name',
+            label: '真实姓名'
+          },
+          {
+            prop: 'subject',
+            label: '所属学科'
+          },
+          {
+            prop: 'job',
+            label: '职位'
+          },
+          {
+            prop: 'year',
+            label: '工作年限'
+          },
+          {
+            prop: 'updateTime',
+            label: '录入时间'
+          },
+          {
+            prop: 'actions',
+            label: '操作',
+            render(_, scope) {
+              return (<div>
+                <el-button>操作</el-button>
+              </div>)
+            }
+          }
+        ],
+        list: []
+      }
     }
+  },
+  created() {
+    getTestList().then((res) => {
+      const { code, data } = res
+      if (Number(code) === 20000) {
+        const { items, total } = data
+        this.formData.list = items
+      }
+      console.log('test', res)
+    })
   },
   methods: {
     checkPermission,
@@ -87,6 +178,7 @@ export default {
     }
   }
 }
+
 </script>
 
 <style lang="scss" scoped>
@@ -105,6 +197,22 @@ export default {
   }
   ::v-deep .permission-tag {
     background-color: #ecf5ff;
+  }
+  .search {
+  margin-top: 20px;
+}
+  .input{
+  display: inline-block;
+  margin-right: 10px;
+  }
+  .button{
+  display: inline;
+  }
+  .tablelist {
+    margin-top: 20px;
+  }
+  .renderless {
+    margin: 20px;
   }
 }
 </style>

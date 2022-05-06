@@ -132,7 +132,7 @@ export const asyncRoutes = [
   {
     path: '/permission',
     component: Layout,
-    redirect: '/permission/page',
+    // redirect: '/permission/page',
     alwaysShow: true, // will always show the root menu
     name: 'Permission',
     meta: {
@@ -140,6 +140,14 @@ export const asyncRoutes = [
       icon: 'lock',
       roles: ['admin', 'editor'] // you can set roles in root nav
     },
+    // children: [
+    //   {
+    //     path: 'index',
+    //     name: 'test',
+    //     component: () => import('@/views/permission/directive.vue'),
+    //     meta: { title: 'Test', icon: 'form', roles: ['admin', 'editor'] }
+    //   }
+    // ]
     children: [
       {
         path: 'page',
